@@ -19,7 +19,7 @@ namespace UniversityCompetition.Models
         public int Id
         {
             get { return id; }
-            set { id = value; }
+            private set { id = value; }
         }
         // In the exam we better use PROPFULL !
 
@@ -28,7 +28,7 @@ namespace UniversityCompetition.Models
         public string Name
         {
             get { return name; }
-            set
+            private set
             {
                 if (String.IsNullOrWhiteSpace(value))
                 {
@@ -44,7 +44,7 @@ namespace UniversityCompetition.Models
         public double Rate
         {
             get { return rate; }
-            set { rate = value; }
+            private set { rate = value; }
         }
 
     }
