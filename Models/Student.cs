@@ -14,6 +14,7 @@ namespace UniversityCompetition.Models
             Id = studentId;
             FirstName = firstName;
             LastName = lastName;
+            coveredExams = new List<int>();
         }
         private int id;
 
@@ -56,6 +57,7 @@ namespace UniversityCompetition.Models
         }
 
         private List<int> coveredExams;
+        //We must initializе this PRIVATE LIST in ctor !!!
         public IReadOnlyCollection<int> CoveredExams 
         {
             get { return coveredExams.AsReadOnly(); } 
