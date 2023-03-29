@@ -6,10 +6,10 @@ namespace UniversityCompetition.Models
 {
     public class TechnicalSubject : Subject
     {
-        public TechnicalSubject(int subjectId, string subjectName, double subjectRate) 
-            : base(subjectId, subjectName, subjectRate)
+        const double _subjectRate = 1.3;
+        public TechnicalSubject(int subjectId, string subjectName)
+            : base(subjectId, subjectName, _subjectRate)
         {
-            const 
         }
     }
 }
