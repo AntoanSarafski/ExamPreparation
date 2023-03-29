@@ -15,7 +15,7 @@ namespace UniversityCompetition.Models.Contracts
             Name= universityName;
             Category= category;
             Capacity= capacity;
-            this.requiredSubjects = requiredSubjects.ToList();
+            this.requiredSubjects = requiredSubjects.ToList(); // this! , cuz of two same names.
 
         }
         private string[] allowedCategories = new string[] { "Technical", "Economical", "Humanity" };

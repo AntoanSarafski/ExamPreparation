@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UniversityCompetition.Models.Contracts;
 using UniversityCompetition.Repositories.Contracts;
@@ -9,30 +10,33 @@ namespace UniversityCompetition.Repositories
     public class StudentRepository : IRepository<IStudent>
     {
 
-        public SubjectRepository()
+        public StudentRepository()
         {
-            models = new List<ISubject>();
+            models = new List<IStudent>();
         }
-        private List<ISubject> models;
+        private List<IStudent> models;
 
-        public IReadOnlyCollection<ISubject> Models
+        public IReadOnlyCollection<IStudent> Models
         {
             get { return models.AsReadOnly(); } //Delete setter for better encapsulation!
         }
 
-        public void AddModel(ISubject model)
+        public void AddModel(IStudent model)
         {
             models.Add(model);
         }
 
-        public ISubject FindById(int id)
+        public IStudent FindById(int id)
         {
             return models.FirstOrDefault(m => m.Id == id);
         }
 
-        public ISubject FindByName(string name)
+        public IStudent FindByName(string name)
         {
-            return models.FirstOrDefault(n => n.Name == name);
+            string[] splitted = name.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            string firstName = splitted[0];
+            string lastName = splitted[1];
+            return models.FirstOrDefault(n => n.FirstName == firstName && n.LastName == lastName);
         }
     }
 }
