@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UniversityCompetition.Models.Contracts;
 using UniversityCompetition.Repositories.Contracts;
@@ -8,6 +9,11 @@ namespace UniversityCompetition.Repositories
 {
     public class SubjectRepository : IRepository<ISubject>
     {
+
+        public SubjectRepository()
+        {
+            models = new List<ISubject>();
+        }
         private List<ISubject> models;
 
         public IReadOnlyCollection<ISubject> Models
@@ -17,17 +23,17 @@ namespace UniversityCompetition.Repositories
 
         public void AddModel(ISubject model)
         {
-            throw new NotImplementedException();
+            models.Add(model);
         }
 
         public ISubject FindById(int id)
         {
-            throw new NotImplementedException();
+            return models.FirstOrDefault(m => m.Id == id);
         }
 
         public ISubject FindByName(string name)
         {
-            throw new NotImplementedException();
+            return models.FirstOrDefault(n => n.Name == name);  
         }
     }
 }
