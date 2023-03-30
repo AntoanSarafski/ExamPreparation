@@ -112,13 +112,63 @@ namespace UniversityCompetition.Core
 
         public string ApplyToUniversity(string studentName, string universityName)
         {
-            throw new NotImplementedException();
+            IStudent student = students.FindByName(studentName);
+            if (student == null)
+            {
+                return String.Format($"{studentName} is not registered in the application!");
+            }
+
+            IUniversity universitiy = universities.FindByName(universityName);
+            if (universitiy == null)
+            {
+                return String.Format(OutputMessages.UniversityNotRegitered, universityName);
+            }
+
+            foreach (var requiredExam in universitiy.RequiredSubjects)
+            {
+                if (!student.CoveredExams.Contains(requiredExam))
+                {
+                    return String.Format(OutputMessages.StudentHasToCoverExams, studentName, universityName);
+                }
+            }
+
+            if (student.University != null && student.University.Name == universityName)
+            {
+                return String.Format(OutputMessages.StudentAlreadyJoined, student.FirstName, student.LastName, universityName);
+            }
+
+            student.JoinUniversity(universitiy);
+
+            return String.Format(OutputMessages.StudentSuccessfullyJoined, student.FirstName, student.LastName, universitiy.Name);
+
         }
 
 
         public string UniversityReport(int universityId)
         {
-            throw new NotImplementedException();
+            IUniversity university = universities.FindById(universityId);
+            
+            StringBuilder sb = new StringBuilder();
+            int admittedStudents = CountStudentsInUni(university);
+            sb.AppendLine($"*** {university.Name} ***");
+            sb.AppendLine($"Profile: {university.Category}");
+            sb.AppendLine($"Students admitted: {admittedStudents}");
+            sb.AppendLine($"University vacancy: {university.Capacity - admittedStudents}");
+
+            return sb.ToString().Trim();
+
+            private int CountStudentsInUni(IUniversity)
+            {
+                int count = 0;  
+                foreach (var student in students.Models)
+                {
+                    if (student.University?.Id == university.Id)
+                    {
+                        count++;
+                    }
+                }
+                return count;
+            }
         }
     }
 }
