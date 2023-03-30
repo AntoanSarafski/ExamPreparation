@@ -50,6 +50,7 @@ namespace UniversityCompetition.Models.Contracts
                 if (allowedCategories.Contains(value))
                 {
                     category = value;
+                    return;
                 }
                 throw new ArgumentException(String.Format(ExceptionMessages.CategoryNotAllowed, value));
                 //ExceptionMessages.CategoryNotAllowed ->

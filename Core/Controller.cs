@@ -7,12 +7,13 @@ using UniversityCompetition.Repositories;
 using UniversityCompetition.Models;
 using System.Linq;
 using UniversityCompetition.Utilities.Messages;
+using UniversityCompetition.Models.Contracts;
 
 namespace UniversityCompetition.Core
 {
     public class Controller : IController
     {
-        private string[] allowedCategories = new string[] { "Technical", "Economical", "Humanity" };
+        private string[] allowedCategories = new string[] { "TechnicalSubject", "EconomicalSubject", "HumanitySubject" };
 
         private SubjectRepository subjects;
         private StudentRepository students;
@@ -39,22 +40,22 @@ namespace UniversityCompetition.Core
             }
 
             Subject subject = null;
-            if (subjectName == "Technical")
+            if (subjectType == "Technical")
             {
                 subject = new TechnicalSubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
             }
-            if (subjectName == "Economical")
+            if (subjectType == "Economical")
             {
                 subject = new EconomicalSubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
             }
-            if (subjectName == "Humanity")
+            if (subjectType == "Humanity")
             {
                 subject = new HumanitySubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
             }
 
             subjects.AddModel(subject);
 
-            return String.Format(OutputMessages.SubjectAddedSuccessfully, subject.GetType().Name);
+            return String.Format(OutputMessages.SubjectAddedSuccessfully, subject.GetType().Name, subjectName, subjects.GetType().Name);
         }
 
 
@@ -67,7 +68,17 @@ namespace UniversityCompetition.Core
 
         public string AddUniversity(string universityName, string category, int capacity, List<string> requiredSubjects)
         {
-            throw new NotImplementedException();
+            if (universities.FindByName(universityName) != null)
+            {
+                return String.Format(OutputMessages.AlreadyAddedUniversity, universityName);
+            }
+            List<int> requiredSubjectsAsInts = requiredSubjects.Select(s => int.Parse(s)).ToList();
+
+            University university = new University(0, universityName, category, capacity, requiredSubjectsAsInts);
+
+            universities.AddModel(university);
+            return String.Format(OutputMessages.UniversityAddedSuccessfully, universityName, universities.GetType().Name);
+            
         }
 
         public string ApplyToUniversity(string studentName, string universityName)

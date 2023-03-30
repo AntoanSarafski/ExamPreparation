@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UniversityCompetition.Models;
 using UniversityCompetition.Models.Contracts;
 using UniversityCompetition.Repositories.Contracts;
 
@@ -23,6 +24,8 @@ namespace UniversityCompetition.Repositories
 
         public void AddModel(IStudent model)
         {
+            //The only way to set Id without reflection ! 
+            Student student = new Student(models.Count + 1, model.FirstName, model.LastName); 
             models.Add(model);
         }
 
