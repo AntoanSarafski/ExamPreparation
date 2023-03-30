@@ -156,19 +156,22 @@ namespace UniversityCompetition.Core
             sb.AppendLine($"University vacancy: {university.Capacity - admittedStudents}");
 
             return sb.ToString().Trim();
+        }
 
-            private int CountStudentsInUni(IUniversity)
+        private int CountStudentsInUni(IUniversity university)
+        {
+            int count = 0;
+            foreach (var student in students.Models)
             {
-                int count = 0;  
-                foreach (var student in students.Models)
+                if (student.University?.Id == university.Id)
                 {
-                    if (student.University?.Id == university.Id)
-                    {
-                        count++;
-                    }
+                    count++;
                 }
-                return count;
             }
+
+
+            return count;
+
         }
     }
 }
