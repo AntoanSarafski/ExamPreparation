@@ -40,15 +40,15 @@ namespace UniversityCompetition.Core
             }
 
             Subject subject = null;
-            if (subjectType == "Technical")
+            if (subjectType == typeof(TechnicalSubject).Name)
             {
                 subject = new TechnicalSubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
             }
-            if (subjectType == "Economical")
+            if (subjectType == typeof(EconomicalSubject).Name)
             {
                 subject = new EconomicalSubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
             }
-            if (subjectType == "Humanity")
+            if (subjectType == typeof(HumanitySubject).Name)
             {
                 subject = new HumanitySubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
             }
@@ -58,38 +58,63 @@ namespace UniversityCompetition.Core
             return String.Format(OutputMessages.SubjectAddedSuccessfully, subject.GetType().Name, subjectName, subjects.GetType().Name);
         }
 
-
-        public string AddStudent(string firstName, string lastName)
-        {
-            throw new NotImplementedException();
-        }
-
-        
-
         public string AddUniversity(string universityName, string category, int capacity, List<string> requiredSubjects)
         {
             if (universities.FindByName(universityName) != null)
             {
                 return String.Format(OutputMessages.AlreadyAddedUniversity, universityName);
             }
-            List<int> requiredSubjectsAsInts = requiredSubjects.Select(s => int.Parse(s)).ToList();
+            // Math, Physics ... we must find this subject in SubjectRepository and take the id.
+            List<int> requiredSubjectsAsInts = requiredSubjects.Select(s => subjects.FindByName(s).Id).ToList();
 
             University university = new University(0, universityName, category, capacity, requiredSubjectsAsInts);
 
             universities.AddModel(university);
             return String.Format(OutputMessages.UniversityAddedSuccessfully, universityName, universities.GetType().Name);
-            
+
         }
+
+
+        public string AddStudent(string firstName, string lastName)
+        {
+            if (students.FindByName($"{firstName} {lastName}") != null)
+            {
+                return String.Format(OutputMessages.StudentAlreadyJoined, firstName, lastName);
+            }
+
+            students.AddModel(new Student(0, firstName, lastName));
+
+            return String.Format(OutputMessages.StudentAddedSuccessfully, firstName, lastName, students.GetType().Name);
+        }
+
+        public string TakeExam(int studentId, int subjectId)
+        {
+            IStudent student = students.FindById(studentId);
+            if (student == null)
+            {
+                return String.Format(OutputMessages.InvalidStudentId);
+            }
+            
+            ISubject subject = subjects.FindById(subjectId);
+            if (subject == null)
+            {
+                return String.Format(OutputMessages.InvalidSubjectId);
+            }
+            if (student.CoveredExams.Contains(subjectId))
+            {
+                return String.Format(OutputMessages.StudentAlreadyCoveredThatExam, student.FirstName, student.LastName, subject.Name);
+            }
+
+            student.CoverExam(subject);
+            return String.Format(OutputMessages.StudentSuccessfullyCoveredExam, student.FirstName, student.LastName, subject.Name);
+        }
+        
 
         public string ApplyToUniversity(string studentName, string universityName)
         {
             throw new NotImplementedException();
         }
 
-        public string TakeExam(int studentId, int subjectId)
-        {
-            throw new NotImplementedException();
-        }
 
         public string UniversityReport(int universityId)
         {
