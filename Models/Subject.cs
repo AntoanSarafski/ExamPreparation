@@ -8,26 +8,25 @@ namespace UniversityCompetition.Models
 {
     public abstract class Subject : ISubject
     {
-        public Subject(int subjectId, string subjectName, double subjectRate)
+        private int id;
+        private string name;
+        private double rate;
+
+        protected Subject(int subjectId, string subjectName, double subjectRate)
         {
             Id = subjectId;
             Name = subjectName;
             Rate = subjectRate;
         }
-        private int id;
-
         public int Id
         {
-            get { return id; }
-            private set { id = value; }
+            get => id;
+            private set => id = value;
         }
-        // In the exam we better use PROPFULL !
-
-        private string name;
 
         public string Name
         {
-            get { return name; }
+            get => name;
             private set
             {
                 if (String.IsNullOrWhiteSpace(value))
@@ -38,14 +37,10 @@ namespace UniversityCompetition.Models
             }
         }
 
-
-        private double rate;
-
         public double Rate
         {
-            get { return rate; }
-            private set { rate = value; }
+            get => rate;
+            private set => rate = value;
         }
-
     }
 }

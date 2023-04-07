@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UniversityCompetition.Models;
 using UniversityCompetition.Models.Contracts;
 using UniversityCompetition.Repositories.Contracts;
 
@@ -10,45 +9,24 @@ namespace UniversityCompetition.Repositories
 {
     public class SubjectRepository : IRepository<ISubject>
     {
+        private List<ISubject> models;
 
         public SubjectRepository()
         {
             models = new List<ISubject>();
         }
-        private List<ISubject> models;
-
-        public IReadOnlyCollection<ISubject> Models
-        {
-            get { return models.AsReadOnly(); } //Delete setter for better encapsulation!
+        public IReadOnlyCollection<ISubject> Models 
+        { 
+            get => models.AsReadOnly();
         }
 
         public void AddModel(ISubject model)
-        {
-            ISubject subject = null;
-            if (model is TechnicalSubject)
-            {
-                subject = new TechnicalSubject(models.Count + 1, model.Name);
-            }
-            if (model is EconomicalSubject)
-            {
-                subject = new EconomicalSubject(models.Count + 1, model.Name);
-            }
-            if (model is HumanitySubject)
-            {
-                subject = new HumanitySubject(models.Count + 1, model.Name);
-            }
-
-            models.Add(model);
-        }
+            => models.Add(model);
 
         public ISubject FindById(int id)
-        {
-            return models.FirstOrDefault(m => m.Id == id);
-        }
+            => models.FirstOrDefault(s => s.Id == id);
 
         public ISubject FindByName(string name)
-        {
-            return models.FirstOrDefault(n => n.Name == name);  
-        }
+            => models.FirstOrDefault(s => s.Name == name);
     }
 }

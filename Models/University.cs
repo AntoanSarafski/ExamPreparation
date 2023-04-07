@@ -2,35 +2,42 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UniversityCompetition.Models.Contracts;
 using UniversityCompetition.Utilities.Messages;
 
-namespace UniversityCompetition.Models.Contracts
+namespace UniversityCompetition.Models
 {
     public class University : IUniversity
     {
-
-        public University(int universityId, string universityName, string category, int capacity, ICollection<int> requiredSubjects)
-        {
-            Id = universityId;
-            Name= universityName;
-            Category= category;
-            Capacity= capacity;
-            this.requiredSubjects = requiredSubjects.ToList(); // this! , cuz of two same names.
-
-        }
         private string[] allowedCategories = new string[] { "Technical", "Economical", "Humanity" };
         private int id;
-        public int Id
+        private string name;
+        private string category;
+        private int capacity;
+        private readonly List<int> requiredSubjects;
+
+        public University(
+            int universityId,
+            string universityName, 
+            string category,
+            int capacity,
+            ICollection<int> requiredSubjects)
         {
-            get { return id; }
-            private set { id = value; }
+            Id = universityId;
+            Name = universityName;
+            Category = category;
+            Capacity = capacity;
+            this.requiredSubjects = requiredSubjects.ToList();
+        }
+        public int Id 
+        {
+            get => id; 
+            private set => id = value;
         }
 
-
-        private string name;
         public string Name
-        {
-            get { return name; }
+        { 
+            get => name;
             private set
             {
                 if (String.IsNullOrWhiteSpace(value))
@@ -41,32 +48,25 @@ namespace UniversityCompetition.Models.Contracts
             }
         }
 
-        private string category;
         public string Category
-        {
-            get { return category; }
+        { 
+            get => category;
             private set
             {
-                if (allowedCategories.Contains(value))
+                if (!allowedCategories.Contains(value))
                 {
-                    category = value;
-                    return;
+                    throw new ArgumentException(String.Format(ExceptionMessages.CategoryNotAllowed, value));
                 }
-                throw new ArgumentException(String.Format(ExceptionMessages.CategoryNotAllowed, value));
-                //ExceptionMessages.CategoryNotAllowed ->
-                //"University category {0} !!! THIS {0} = value in string.FORMAT !!! is not allowed in the application!"
+                category = value;
             }
         }
 
-
-        private int capacity;
-
         public int Capacity
-        {
-            get { return capacity; }
-            set 
+        { 
+            get => capacity;
+            private set
             {
-                if (value < 0)
+                if(value < 0)
                 {
                     throw new ArgumentException(ExceptionMessages.CapacityNegative);
                 }
@@ -74,8 +74,6 @@ namespace UniversityCompetition.Models.Contracts
             }
         }
 
-        private List<int> requiredSubjects;
-
-        public IReadOnlyCollection<int> RequiredSubjects { get { return requiredSubjects.AsReadOnly(); } }
+        public IReadOnlyCollection<int> RequiredSubjects => requiredSubjects.AsReadOnly();
     }
 }

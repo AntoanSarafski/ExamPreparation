@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UniversityCompetition.Models.Contracts;
 using UniversityCompetition.Utilities.Messages;
@@ -8,6 +9,11 @@ namespace UniversityCompetition.Models
 {
     public class Student : IStudent
     {
+        private string firstName;
+        private string lastName;
+        private int id;
+        private IUniversity university;
+        private readonly List<int> coveredExams;
 
         public Student(int studentId, string firstName, string lastName)
         {
@@ -16,20 +22,15 @@ namespace UniversityCompetition.Models
             LastName = lastName;
             coveredExams = new List<int>();
         }
-        private int id;
-
         public int Id
         {
-            get { return id; }
-            private set { id = value; }
+            get => id;
+            private set => id = value;
         }
-
-
-        private string firstName;
 
         public string FirstName
         {
-            get { return firstName; }
+            get => firstName;
             private set
             {
                 if (String.IsNullOrWhiteSpace(value))
@@ -40,12 +41,9 @@ namespace UniversityCompetition.Models
             }
         }
 
-
-        private string lastName;
-
         public string LastName
         {
-            get { return lastName; }
+            get => lastName;
             private set
             {
                 if (String.IsNullOrWhiteSpace(value))
@@ -56,32 +54,17 @@ namespace UniversityCompetition.Models
             }
         }
 
-        private List<int> coveredExams;
-        //We must initializе this PRIVATE LIST in ctor !!!
-        public IReadOnlyCollection<int> CoveredExams 
-        {
-            get { return coveredExams.AsReadOnly(); } 
-            // Here we make the List to ReadOnly collection.
+        public IReadOnlyCollection<int> CoveredExams => coveredExams.AsReadOnly();
+
+        public IUniversity University 
+        { 
+            get => university;
         }
-
-        private IUniversity university;
-
-        public IUniversity University
-        {
-            get { return university; }
-            // Deleted setter! Its in JoinUniversity method ! 
-        }
-
 
         public void CoverExam(ISubject subject)
-        {
-            coveredExams.Add(subject.Id); 
-        }
+            => coveredExams.Add(subject.Id);
 
         public void JoinUniversity(IUniversity university)
-        {
-            //Here we set value of University and we must delete setter ! 
-            this.university = university;
-        }
+            => this.university = university;
     }
 }

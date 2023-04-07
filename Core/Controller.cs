@@ -1,177 +1,181 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UniversityCompetition.Core.Contracts;
 using UniversityCompetition.Models;
-using UniversityCompetition.Repositories;
-using UniversityCompetition.Models;
-using System.Linq;
-using UniversityCompetition.Utilities.Messages;
 using UniversityCompetition.Models.Contracts;
+using UniversityCompetition.Repositories;
+using UniversityCompetition.Utilities.Messages;
 
 namespace UniversityCompetition.Core
 {
     public class Controller : IController
     {
+        private SubjectRepository subjectRepository;
+        private StudentRepository studentRepository;
+        private UniversityRepository universityRepository;
+
         private string[] allowedCategories = new string[] { "TechnicalSubject", "EconomicalSubject", "HumanitySubject" };
-
-        private SubjectRepository subjects;
-        private StudentRepository students;
-        private UniversityRepository universities;
-
 
         public Controller()
         {
-            subjects = new SubjectRepository();
-            students = new StudentRepository();
-            universities = new UniversityRepository();
+            subjectRepository = new SubjectRepository();
+            studentRepository = new StudentRepository();
+            universityRepository = new UniversityRepository();
         }
-
 
         public string AddSubject(string subjectName, string subjectType)
         {
             if (!allowedCategories.Contains(subjectType))
             {
-                return String.Format(OutputMessages.SubjectTypeNotSupported, subjectType);
+                return String.Format(OutputMessages.SubjectTypeNotSupported , subjectType);
             }
-            if (subjects.FindByName(subjectName) != null)
+            if (subjectRepository.FindByName(subjectName) != null)
             {
-                return String.Format(OutputMessages.AlreadyAddedSubject, subjectType);
+                return String.Format(OutputMessages.AlreadyAddedSubject, subjectName);
             }
-
-            Subject subject = null;
-            if (subjectType == typeof(TechnicalSubject).Name)
+            if (subjectType == "TechnicalSubject")
             {
-                subject = new TechnicalSubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
+                ISubject subject = new TechnicalSubject((subjectRepository.Models.Count + 1), subjectName);
+                subjectRepository.AddModel(subject);
+                return String.Format(OutputMessages.SubjectAddedSuccessfully, subjectType, subjectName, subjectRepository.GetType().Name);
             }
-            if (subjectType == typeof(EconomicalSubject).Name)
+            if (subjectType == "EconomicalSubject")
             {
-                subject = new EconomicalSubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
+                ISubject subject = new EconomicalSubject((subjectRepository.Models.Count + 1), subjectName);
+                subjectRepository.AddModel(subject);
+                return String.Format(OutputMessages.SubjectAddedSuccessfully, subjectType, subjectName, subjectRepository.GetType().Name);
             }
-            if (subjectType == typeof(HumanitySubject).Name)
+            else
             {
-                subject = new HumanitySubject(0, subjectName); // this 0 is Id , which we must added in the repository after that !!!
+                ISubject subject = new HumanitySubject((subjectRepository.Models.Count + 1), subjectName);
+                subjectRepository.AddModel(subject);
+                return String.Format(OutputMessages.SubjectAddedSuccessfully, subjectType, subjectName, subjectRepository.GetType().Name);
             }
-
-            subjects.AddModel(subject);
-
-            return String.Format(OutputMessages.SubjectAddedSuccessfully, subject.GetType().Name, subjectName, subjects.GetType().Name);
         }
+
 
         public string AddUniversity(string universityName, string category, int capacity, List<string> requiredSubjects)
         {
-            if (universities.FindByName(universityName) != null)
+            if (universityRepository.FindByName(universityName) != null)
             {
                 return String.Format(OutputMessages.AlreadyAddedUniversity, universityName);
             }
-            // Math, Physics ... we must find this subject in SubjectRepository and take the id.
-            List<int> requiredSubjectsAsInts = requiredSubjects.Select(s => subjects.FindByName(s).Id).ToList();
+            List<int> requiredSubjectAsInt = new List<int>();
+            foreach (var reqiredSubject in requiredSubjects)
+            {
+                requiredSubjectAsInt.Add(subjectRepository.FindByName(reqiredSubject).Id);
+            }
 
-            University university = new University(0, universityName, category, capacity, requiredSubjectsAsInts);
-
-            universities.AddModel(university);
-            return String.Format(OutputMessages.UniversityAddedSuccessfully, universityName, universities.GetType().Name);
-
+            IUniversity university = new University(universityRepository.Models.Count() + 1, universityName, category, capacity, requiredSubjectAsInt);
+            universityRepository.AddModel(university);
+            return String.Format(OutputMessages.UniversityAddedSuccessfully, universityName, universityRepository.GetType().Name);
         }
+
+        // One test crashed.
 
 
         public string AddStudent(string firstName, string lastName)
         {
-            if (students.FindByName($"{firstName} {lastName}") != null)
+            string studentName = firstName + " " + lastName;
+            if (studentRepository.FindByName(studentName) != null)
             {
-                return String.Format(OutputMessages.StudentAlreadyJoined, firstName, lastName);
+                return String.Format(OutputMessages.AlreadyAddedStudent, firstName, lastName);
             }
-
-            students.AddModel(new Student(0, firstName, lastName));
-
-            return String.Format(OutputMessages.StudentAddedSuccessfully, firstName, lastName, students.GetType().Name);
+            IStudent student = new Student(studentRepository.Models.Count() + 1, firstName, lastName);
+            studentRepository.AddModel(student);
+            return String.Format(OutputMessages.StudentAddedSuccessfully,firstName, lastName, studentRepository.GetType().Name);
         }
+
 
         public string TakeExam(int studentId, int subjectId)
         {
-            IStudent student = students.FindById(studentId);
-            if (student == null)
+            if (studentRepository.FindById(studentId) == null)
             {
-                return String.Format(OutputMessages.InvalidStudentId);
+                return OutputMessages.InvalidStudentId;
             }
-            
-            ISubject subject = subjects.FindById(subjectId);
-            if (subject == null)
+            if (subjectRepository.FindById(subjectId) == null)
             {
-                return String.Format(OutputMessages.InvalidSubjectId);
+                return OutputMessages.InvalidSubjectId;
             }
-            if (student.CoveredExams.Contains(subjectId))
+            if (studentRepository.FindById(studentId).CoveredExams.Contains(subjectId))
             {
-                return String.Format(OutputMessages.StudentAlreadyCoveredThatExam, student.FirstName, student.LastName, subject.Name);
+                return String.Format(OutputMessages.StudentAlreadyCoveredThatExam, studentRepository.FindById(studentId).FirstName, studentRepository.FindById(studentId).LastName, subjectRepository.FindById(subjectId).Name);
             }
-
-            student.CoverExam(subject);
-            return String.Format(OutputMessages.StudentSuccessfullyCoveredExam, student.FirstName, student.LastName, subject.Name);
+            studentRepository.FindById(studentId).CoverExam(subjectRepository.FindById(subjectId));
+            return String.Format(OutputMessages.StudentSuccessfullyCoveredExam, studentRepository.FindById(studentId).FirstName, studentRepository.FindById(studentId).LastName, subjectRepository.FindById(subjectId).Name);
         }
-        
+
+
+
 
         public string ApplyToUniversity(string studentName, string universityName)
         {
-            IStudent student = students.FindByName(studentName);
-            if (student == null)
-            {
-                return String.Format($"{studentName} is not registered in the application!");
-            }
+            string[] splittedName = studentName.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            string studentFirstName = splittedName[0];
+            string studentLastName = splittedName[1];
 
-            IUniversity universitiy = universities.FindByName(universityName);
-            if (universitiy == null)
+            if (studentRepository.FindByName(studentName) == null)
+            {
+                return String.Format(OutputMessages.StudentNotRegitered, studentFirstName, studentLastName);
+            }
+            if (universityRepository.FindByName(universityName) == null)
             {
                 return String.Format(OutputMessages.UniversityNotRegitered, universityName);
             }
-
-            foreach (var requiredExam in universitiy.RequiredSubjects)
+            List<int> reqiredExams = universityRepository.FindByName(universityName).RequiredSubjects.ToList();
+            for (int i = 0; i < reqiredExams.Count; i++)
             {
-                if (!student.CoveredExams.Contains(requiredExam))
+                if (studentRepository.FindByName(studentName).CoveredExams.Contains(reqiredExams[i]) == false)
                 {
                     return String.Format(OutputMessages.StudentHasToCoverExams, studentName, universityName);
                 }
-            }
 
-            if (student.University != null && student.University.Name == universityName)
+            }
+            
+            if (studentRepository.FindByName(studentName).University == null)
             {
-                return String.Format(OutputMessages.StudentAlreadyJoined, student.FirstName, student.LastName, universityName);
+                studentRepository.FindByName(studentName).JoinUniversity(universityRepository.FindByName(universityName));
+                return String.Format(OutputMessages.StudentSuccessfullyJoined, studentFirstName, studentLastName, universityName);
             }
 
-            student.JoinUniversity(universitiy);
+            if (studentRepository.FindByName(studentName).University.Name == universityName)
+            {
+                return String.Format(OutputMessages.StudentAlreadyJoined, studentFirstName, studentLastName, universityName);
 
-            return String.Format(OutputMessages.StudentSuccessfullyJoined, student.FirstName, student.LastName, universitiy.Name);
+            }
+            studentRepository.FindByName(studentName).JoinUniversity(universityRepository.FindByName(universityName));
+            return String.Format(OutputMessages.StudentSuccessfullyJoined, studentFirstName, studentLastName, universityName);
 
         }
+
 
 
         public string UniversityReport(int universityId)
         {
-            IUniversity university = universities.FindById(universityId);
-            
+            IUniversity university = universityRepository.FindById(universityId);
             StringBuilder sb = new StringBuilder();
-            int admittedStudents = CountStudentsInUni(university);
+
+            int admittedStudents = 0;
+            for (int i = 1; i <= studentRepository.Models.Count; i++)
+            {
+                if(studentRepository.FindById(i).University == null)
+                {
+
+                }
+                else if (studentRepository.FindById(i).University.Name == university.Name)
+                {
+                    admittedStudents++;
+                }
+            }
             sb.AppendLine($"*** {university.Name} ***");
             sb.AppendLine($"Profile: {university.Category}");
             sb.AppendLine($"Students admitted: {admittedStudents}");
             sb.AppendLine($"University vacancy: {university.Capacity - admittedStudents}");
 
             return sb.ToString().Trim();
-        }
-
-        private int CountStudentsInUni(IUniversity university)
-        {
-            int count = 0;
-            foreach (var student in students.Models)
-            {
-                if (student.University?.Id == university.Id)
-                {
-                    count++;
-                }
-            }
-
-
-            return count;
-
         }
     }
 }

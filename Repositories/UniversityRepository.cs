@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UniversityCompetition.Models;
 using UniversityCompetition.Models.Contracts;
 using UniversityCompetition.Repositories.Contracts;
 
@@ -10,34 +9,21 @@ namespace UniversityCompetition.Repositories
 {
     public class UniversityRepository : IRepository<IUniversity>
     {
-
+        private List<IUniversity> universities;
         public UniversityRepository()
         {
-            models = new List<IUniversity>();
-        }
-        private List<IUniversity> models;
-
-        public IReadOnlyCollection<IUniversity> Models
-        {
-            get { return models.AsReadOnly(); } //Delete setter for better encapsulation!
+            universities = new List<IUniversity>();
         }
 
-        public void AddModel(IUniversity model)
-        {
-            //The only way to set Id without reflection ! 
-            University university = new University(models.Count + 1, model.Name,model.Category, model.Capacity, model.RequiredSubjects.ToList());
+        public IReadOnlyCollection<IUniversity> Models => universities.AsReadOnly();
 
-            models.Add(model);
-        }
+        public void AddModel(IUniversity university)
+            => universities.Add(university);
 
         public IUniversity FindById(int id)
-        {
-            return models.FirstOrDefault(m => m.Id == id);
-        }
+            => universities.FirstOrDefault(u => u.Id == id);
 
         public IUniversity FindByName(string name)
-        {
-            return models.FirstOrDefault(n => n.Name == name);
-        }
+            => universities.FirstOrDefault(u => u.Name == name);
     }
 }
